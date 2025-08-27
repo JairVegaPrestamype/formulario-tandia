@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud API - Tandia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .form-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .form-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .form-content {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>🚀 Solicita acceso a nuestra API</h1>
+            <p>Completa el formulario y te contactaremos según tu prioridad</p>
+        </div>
+        
+        <div class="form-content">
+            <div class="success-message" id="successMessage">
+                ✅ ¡Perfecto! Hemos recibido tu solicitud. Te contactaremos pronto según tu prioridad.
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                ❌ Hubo un error al enviar tu solicitud. Por favor, intenta nuevamente.
+            </div>
+            
+            <form id="leadForm">
+                <!-- Datos básicos -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo *</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono *</label>
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empresa">Empresa</label>
+                    <input type="text" id="empresa" name="empresa">
+                </div>
+                
+                <!-- Scoring fields -->
+                <div class="form-group">
+                    <label for="volumen">¿Cuál es tu volumen mensual aproximado de transacciones? *</label>
+                    <select id="volumen" name="volumen" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="5000+">Más de 5,000</option>
+                        <option value="1000-5000">Entre 1,000 y 5,000</option>
+                        <option value="200-1000">Entre 200 y 1,000</option>
+                        <option value="<200">Menos de 200</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="urgencia">¿Cuándo necesitas implementar la API? *</label>
+                    <select id="urgencia" name="urgencia" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="2-semanas">En 2 semanas o menos</option>
+                        <option value="1-mes">En el próximo mes</option>
+                        <option value="explorando">Solo estoy explorando opciones</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="plataforma">¿Qué tipo de plataforma tienes? *</label>
+                        <select id="plataforma" name="plataforma" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="ecommerce">E-commerce / Marketplace</option>
+                            <option value="saas">SaaS</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stack">¿Qué stack técnico usas? *</label>
+                        <select id="stack" name="stack" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="compatible">Node.js, Python, Java o .NET</option>
+                            <option value="otro">Otro stack</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="equipo">¿Tienes equipo técnico interno? *</label>
+                    <select id="equipo" name="equipo" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="si">Sí</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                
+                <div class="loading" id="loading">
+                    🔄 Procesando tu solicitud...
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Enviar solicitud
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Capturar UTM parameters
+        function getURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                utm_source: params.get('utm_source') || '',
+                utm_campaign: params.get('utm_campaign') || '',
+                utm_medium: params.get('utm_medium') || '',
+                utm_content: params.get('utm_content') || '',
+                utm_term: params.get('utm_term') || ''
+            };
+        }
+
+        // Calcular score localmente para feedback inmediato
+        function calculateScore(formData) {
+            let score = 0;
+            
+            // Volumen mensual
+            switch(formData.volumen) {
+                case '5000+': score += 40; break;
+                case '1000-5000': score += 30; break;
+                case '200-1000': score += 15; break;
+                case '<200': score += 5; break;
+            }
+            
+            // Urgencia
+            switch(formData.urgencia) {
+                case '2-semanas': score += 20; break;
+                case '1-mes': score += 10; break;
+                case 'explorando': score += 0; break;
+            }
+            
+            // Tipo de plataforma
+            switch(formData.plataforma) {
+                case 'ecommerce': score += 15; break;
+                case 'saas': score += 10; break;
+                case 'otro': score += 0; break;
+            }
+            
+            // Stack técnico
+            switch(formData.stack) {
+                case 'compatible': score += 10; break;
+                case 'otro': score += 5; break;
+            }
+            
+            // Equipo técnico
+            if(formData.equipo === 'si') score += 10;
+            
+            return score;
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('leadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Añadir UTM params y timestamp
+            const utmParams = getURLParams();
+            const submitData = {
+                ...data,
+                ...utmParams,
+                timestamp: new Date().toISOString(),
+                score: calculateScore(data)
+            };
+            
+            // UI Loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            try {
+                // Webhook de N8N en prestamype.com
+                const response = await fetch('https://n8n.prestamype.com/webhook/lead-scoring', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(submitData)
+                });
+                
+                if (response.ok) {
+                    successMsg.style.display = 'block';
+                    this.reset();
+                    
+                    // Mostrar mensaje personalizado según score
+                    if (submitData.score >= 60) {
+                        successMsg.innerHTML = '🎯 ¡Excelente! Tu perfil es de alta prioridad. Te contactaremos en las próximas horas para agendar una demo técnica.';
+                    } else if (submitData.score >= 30) {
+                        successMsg.innerHTML = '👍 Perfecto! Te contactaremos pronto para una llamada diagnóstica.';
+                    } else {
+                        successMsg.innerHTML = '✅ ¡Gracias! Te enviaremos acceso a nuestro sandbox para que pruebes la API.';
+                    }
+                    
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.style.display = 'block';
+            }
+            
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+        });
+        
+        // Debug: Mostrar score en tiempo real (remover en producción)
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                const formData = new FormData(document.getElementById('leadForm'));
+                const data = Object.fromEntries(formData.entries());
+                const score = calculateScore(data);
+                console.log('Score actual:', score);
+            });
+        });
+    </script>
+</body>
+</html>
